@@ -23,161 +23,47 @@ COLOR_YELLOW = "#facc15"
 COLOR_RED = "#ef4444"
 COLOR_BORDER = "#263244"
 
+# Parte generada con apoyo de IA para gestionar rutas y carpetas.
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(BASE_DIR, "data")
 ARCHIVOS_JSON = os.path.join(DATA_DIR, "archivos_guardados.json")
 
 
-def crear_sistema_simulado() -> Carpeta:
-    """
-    Sistema inicialmente vacío.
-    Los archivos se añaden desde la interfaz gráfica.
-    """
+def crear_sistema_simulado():
+    # Sistema inicialmente vacío.
+    # Los archivos se añaden desde la interfaz gráfica.
+
     return Carpeta("root")
 
 
-def crear_base_firmas() -> BaseFirmas:
-    """
-    Crea una base de firmas inicial con patrones sospechosos y maliciosos.
-    Las severidades se interpretan así:
-    - 0 a 6: sospechoso
-    - 7 a 10: malicioso
-    """
+def crear_base_firmas():
+
+    # Crea una base de firmas inicial con patrones sospechosos y maliciosos.
+    # Las severidades se interpretan así:
+    # - 0 a 6: sospechoso
+    # - 7 a 10: malicioso
+
     base = BaseFirmas()
 
-    # Firmas sospechosas
-    base.agregar_firma_patron(
-        "powershell -enc",
-        FirmaMalware(
-            identificador="SIG-001",
-            patron="powershell -enc",
-            tipo="PowerShell ofuscado",
-            severidad=5,
-            descripcion="Uso de PowerShell con comando codificado"
-        )
-    )
+    firmas = [
+        ("SIG-001", "powershell -enc", "PowerShell ofuscado", 5, "Uso de PowerShell con comando codificado"),
+        ("SIG-002", "cmd.exe /c", "Ejecución CMD sospechosa", 4, "Uso de CMD para ejecutar comandos del sistema"),
+        ("SIG-003", "Invoke-WebRequest", "Descarga remota sospechosa", 5, "Posible descarga de contenido remoto mediante PowerShell"),
+        ("SIG-004", "base64_decode", "Decodificación Base64 sospechosa", 6, "Uso de codificación Base64 para ocultar contenido"),
+        ("SIG-005", "document.write(unescape(", "JavaScript ofuscado", 6, "Patrón típico de JavaScript ofuscado"),
+        ("SIG-006", "wget http://", "Descarga por consola", 5, "Descarga remota mediante wget"),
 
-    base.agregar_firma_patron(
-        "cmd.exe /c",
-        FirmaMalware(
-            identificador="SIG-002",
-            patron="cmd.exe /c",
-            tipo="Ejecución CMD sospechosa",
-            severidad=4,
-            descripcion="Uso de CMD para ejecutar comandos del sistema"
-        )
-    )
+        ("SIG-007", "malicious_payload", "Payload malicioso genérico", 9, "Cadena de prueba configurada como maliciosa"),
+        ("SIG-008", "eval(base64_decode", "Webshell PHP", 9, "Patrón típico de webshell o malware PHP ofuscado"),
+        ("SIG-009", "bash -i >& /dev/tcp/", "Reverse shell Linux", 10, "Patrón asociado a una reverse shell"),
+        ("SIG-010", "keylogger_start", "Keylogger simulado", 8, "Indicador educativo de captura de teclado"),
+        ("SIG-011", "encrypt_all_files", "Ransomware simulado", 10, "Indicador educativo de cifrado masivo de archivos"),
+        ("SIG-012", "rm -rf /", "Comando destructivo Linux", 10, "Comando potencialmente destructivo para el sistema"),
+    ]
 
-    base.agregar_firma_patron(
-        "Invoke-WebRequest",
-        FirmaMalware(
-            identificador="SIG-003",
-            patron="Invoke-WebRequest",
-            tipo="Descarga remota sospechosa",
-            severidad=5,
-            descripcion="Posible descarga de contenido remoto mediante PowerShell"
-        )
-    )
-
-    base.agregar_firma_patron(
-        "base64_decode",
-        FirmaMalware(
-            identificador="SIG-004",
-            patron="base64_decode",
-            tipo="Decodificación Base64 sospechosa",
-            severidad=6,
-            descripcion="Uso de codificación Base64 para ocultar contenido"
-        )
-    )
-
-    base.agregar_firma_patron(
-        "document.write(unescape(",
-        FirmaMalware(
-            identificador="SIG-005",
-            patron="document.write(unescape(",
-            tipo="JavaScript ofuscado",
-            severidad=6,
-            descripcion="Patrón típico de JavaScript ofuscado"
-        )
-    )
-
-    base.agregar_firma_patron(
-        "wget http://",
-        FirmaMalware(
-            identificador="SIG-006",
-            patron="wget http://",
-            tipo="Descarga por consola",
-            severidad=5,
-            descripcion="Descarga remota mediante wget"
-        )
-    )
-
-    # Firmas maliciosas
-    base.agregar_firma_patron(
-        "malicious_payload",
-        FirmaMalware(
-            identificador="SIG-007",
-            patron="malicious_payload",
-            tipo="Payload malicioso genérico",
-            severidad=9,
-            descripcion="Cadena de prueba configurada como maliciosa"
-        )
-    )
-
-    base.agregar_firma_patron(
-        "eval(base64_decode",
-        FirmaMalware(
-            identificador="SIG-008",
-            patron="eval(base64_decode",
-            tipo="Webshell PHP",
-            severidad=9,
-            descripcion="Patrón típico de webshell o malware PHP ofuscado"
-        )
-    )
-
-    base.agregar_firma_patron(
-        "bash -i >& /dev/tcp/",
-        FirmaMalware(
-            identificador="SIG-009",
-            patron="bash -i >& /dev/tcp/",
-            tipo="Reverse shell Linux",
-            severidad=10,
-            descripcion="Patrón asociado a una reverse shell"
-        )
-    )
-
-    base.agregar_firma_patron(
-        "keylogger_start",
-        FirmaMalware(
-            identificador="SIG-010",
-            patron="keylogger_start",
-            tipo="Keylogger simulado",
-            severidad=8,
-            descripcion="Indicador educativo de captura de teclado"
-        )
-    )
-
-    base.agregar_firma_patron(
-        "encrypt_all_files",
-        FirmaMalware(
-            identificador="SIG-011",
-            patron="encrypt_all_files",
-            tipo="Ransomware simulado",
-            severidad=10,
-            descripcion="Indicador educativo de cifrado masivo de archivos"
-        )
-    )
-
-    base.agregar_firma_patron(
-        "rm -rf /",
-        FirmaMalware(
-            identificador="SIG-012",
-            patron="rm -rf /",
-            tipo="Comando destructivo Linux",
-            severidad=10,
-            descripcion="Comando potencialmente destructivo para el sistema"
-        )
-    )
+    for identificador, patron, tipo, severidad, descripcion in firmas:
+        firma = FirmaMalware(identificador, patron, tipo, severidad, descripcion)
+        base.agregar_firma_patron(patron, firma)
 
     return base
 
@@ -187,7 +73,6 @@ class MalScanApp:
         self.root = root
         self.root.title("MalScan - Escáner de Malware por Firmas")
         self.root.geometry("1180x720")
-        self.root.minsize(1040, 640)
 
         self.base_firmas = crear_base_firmas()
         self.sistema = crear_sistema_simulado()
@@ -200,50 +85,60 @@ class MalScanApp:
         self.actualizar_tarjetas()
 
     def obtener_o_crear_carpeta_usuario(self):
-        """Devuelve la carpeta de archivos del usuario. Si no existe, la crea."""
+        # Devuelve la carpeta de archivos del usuario. Si no existe, la crea.
         for hijo in self.sistema.hijos:
-            if isinstance(hijo, Carpeta) and hijo.nombre == "archivos_usuario":
-                return hijo
+            if isinstance(hijo, Carpeta):
+                if hijo.nombre == "archivos_usuario":
+                    return hijo
 
         carpeta = Carpeta("archivos_usuario")
         self.sistema.agregar_hijo(carpeta)
         return carpeta
 
     def cargar_archivos_guardados(self):
-        """Carga los archivos guardados para que no se pierdan al cerrar la app."""
+        # Carga los archivos guardados para que no se pierdan al cerrar la app.
         if not os.path.exists(ARCHIVOS_JSON):
             return
 
         try:
-            with open(ARCHIVOS_JSON, "r", encoding="utf-8") as fichero:
-                datos = json.load(fichero)
+            fichero = open(ARCHIVOS_JSON, "r", encoding="utf-8")
+            datos = json.load(fichero)
+            fichero.close()
 
             carpeta_usuario = self.obtener_o_crear_carpeta_usuario()
 
             for item in datos:
-                nombre = item.get("nombre", "archivo_sin_nombre.txt")
-                contenido = item.get("contenido", "")
-                extension = item.get("extension", ".txt")
-                carpeta_usuario.agregar_hijo(Archivo(nombre, contenido, extension))
+                nombre = item["nombre"]
+                contenido = item["contenido"]
+                extension = item["extension"]
+
+                archivo = Archivo(nombre, contenido, extension)
+                carpeta_usuario.agregar_hijo(archivo)
 
         except Exception:
             # Si el archivo de persistencia está dañado, la app arranca vacía.
             self.sistema = crear_sistema_simulado()
 
     def guardar_archivos(self):
-        """Guarda en JSON todos los archivos añadidos por el usuario."""
-        os.makedirs(DATA_DIR, exist_ok=True)
+        # Guarda en JSON todos los archivos añadidos por el usuario.
+        if not os.path.exists(DATA_DIR):
+            os.makedirs(DATA_DIR)
 
         datos = []
-        for archivo in self.obtener_archivos_anadidos():
-            datos.append({
-                "nombre": archivo.nombre,
-                "contenido": archivo.contenido,
-                "extension": archivo.extension
-            })
 
-        with open(ARCHIVOS_JSON, "w", encoding="utf-8") as fichero:
-            json.dump(datos, fichero, indent=4, ensure_ascii=False)
+        archivos = self.obtener_archivos_anadidos()
+
+        for archivo in archivos:
+            info = {
+            "nombre": archivo.nombre,
+            "contenido": archivo.contenido,
+            "extension": archivo.extension
+        }
+
+        datos.append(info)
+        fichero = open(ARCHIVOS_JSON, "w", encoding="utf-8")
+        json.dump(datos, fichero)
+        fichero.close()
 
     def crear_estilos(self):
         style = ttk.Style()
@@ -301,8 +196,9 @@ class MalScanApp:
     def crear_interfaz(self):
         self.root.configure(bg=COLOR_BG)
 
-        contenedor = tk.Frame(self.root, bg=COLOR_BG)
-        contenedor.pack(fill="both", expand=True, padx=24, pady=20)
+        contenedor = tk.Frame(self.root)
+        contenedor.configure(bg=COLOR_BG)
+        contenedor.pack(fill="both", expand=True, padx=20, pady=20)
 
         self.crear_header(contenedor)
         self.crear_panel_acciones(contenedor)
@@ -311,11 +207,11 @@ class MalScanApp:
         self.crear_footer(contenedor)
 
     def crear_header(self, parent):
-        header = tk.Frame(parent, bg=COLOR_PANEL, highlightbackground=COLOR_BORDER, highlightthickness=1)
-        header.pack(fill="x", pady=(0, 16))
+        header = tk.Frame(parent, bg=COLOR_PANEL)
+        header.pack(fill="x", pady=10)
 
         izquierda = tk.Frame(header, bg=COLOR_PANEL)
-        izquierda.pack(side="left", fill="x", expand=True, padx=20, pady=18)
+        izquierda.pack(side="left", padx=20, pady=15)
 
         tk.Label(
             izquierda,
@@ -323,15 +219,19 @@ class MalScanApp:
             bg=COLOR_PANEL,
             fg=COLOR_ACCENT,
             font=("Segoe UI", 28, "bold")
-        ).pack(anchor="w")
+        )
 
-        tk.Label(
+        titulo.pack(anchor="w")
+
+        subtitulo = tk.Label(
             izquierda,
             text="Proyecto Algoritmos 2026 - Gisela Esteve, Emma Rosendo y Nuria Salas",
             bg=COLOR_PANEL,
             fg=COLOR_MUTED,
             font=("Segoe UI", 11)
-        ).pack(anchor="w", pady=(4, 0))
+        )
+
+        subtitulo.pack(anchor="w")
 
         derecha = tk.Frame(header, bg=COLOR_PANEL)
         derecha.pack(side="right", padx=20, pady=18)
