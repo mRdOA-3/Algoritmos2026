@@ -1,26 +1,24 @@
-from __future__ import annotations
 from abc import ABC, abstractmethod
 from modelo import Archivo, ResultadoEscaneo
 from firmas import BaseFirmas
 
 
 class EstrategiaEscaneo(ABC):
-    """Clase abstracta para aplicar polimorfismo en las estrategias."""
-
-    @abstractmethod
-    def escanear_archivo(self, archivo: Archivo, ruta: str, base_firmas: BaseFirmas) -> ResultadoEscaneo:
+    @abstractmethod # Una solución dada por ia ya que daba error
+    def escanear_archivo(self, archivo, ruta, base_firmas):
         pass
 
 
 class EscaneoRapido(EstrategiaEscaneo):
-    """Escaneo rápido: calcula hash y lo compara con firmas conocidas."""
-
-    def escanear_archivo(self, archivo: Archivo, ruta: str, base_firmas: BaseFirmas) -> ResultadoEscaneo:
+    def escanear_archivo(self, archivo, ruta, base_firmas):
         hash_archivo = archivo.calcular_hash()
         firma = base_firmas.buscar_por_hash(hash_archivo)
 
         if firma:
-            estado = "malicioso" if firma.severidad >= 7 else "sospechoso"
+            if firma.severidad >= 7:
+                estado = "malicioso"
+            else:
+                estado = "sospechoso"
             return ResultadoEscaneo(
                 ruta=ruta,
                 estado=estado,
@@ -39,14 +37,15 @@ class EscaneoRapido(EstrategiaEscaneo):
 
 
 class EscaneoProfundo(EstrategiaEscaneo):
-    """Escaneo profundo: compara hash y busca patrones en el contenido."""
-
-    def escanear_archivo(self, archivo: Archivo, ruta: str, base_firmas: BaseFirmas) -> ResultadoEscaneo:
+    def escanear_archivo(self, archivo, ruta, base_firmas):
         hash_archivo = archivo.calcular_hash()
         firma_hash = base_firmas.buscar_por_hash(hash_archivo)
 
         if firma_hash:
-            estado = "malicioso" if firma_hash.severidad >= 7 else "sospechoso"
+            if firma_hash.severidad >= 7:
+                estado = "malicioso"
+            else:
+                estado = "sospechoso"
             return ResultadoEscaneo(
                 ruta=ruta,
                 estado=estado,
@@ -58,7 +57,10 @@ class EscaneoProfundo(EstrategiaEscaneo):
         firma_patron = base_firmas.buscar_patron_en_contenido(archivo.contenido)
 
         if firma_patron:
-            estado = "malicioso" if firma_patron.severidad >= 7 else "sospechoso"
+            if firma_patron.severidad >= 7:
+                estado = "malicioso"
+            else:
+                estado = "sospechoso"
             return ResultadoEscaneo(
                 ruta=ruta,
                 estado=estado,
