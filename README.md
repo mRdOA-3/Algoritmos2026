@@ -1,34 +1,165 @@
-# MalScan
-MalScan es un sistema de ciberseguridad desarrollado en Python que simula el funcionamiento de un antivirus basado en firmas. El programa permite analizar archivos añadidos por el usuario para detectar posibles amenazas mediante comparación de hashes y búsqueda de patrones maliciosos en el contenido.
+# MALSCAN
 
-El sistema utiliza programación orientada a objetos, estructuras de datos eficientes y algoritmos recursivos para recorrer y analizar una estructura de directorios simulada. Además, implementa dos estrategias de escaneo:
+## 1. Nombre del proyecto
 
-- **Escaneo rápido**: compara hashes de archivos con una base de datos de firmas conocidas.
-- **Escaneo profundo**: además de verificar hashes, analiza el contenido del archivo en busca de patrones sospechosos.
-
-La aplicación cuenta con una interfaz gráfica desarrollada en Tkinter que permite:
-
-- añadir archivos reales desde el ordenador,
-- ejecutar análisis de malware,
-- visualizar resultados y niveles de riesgo,
-- consultar hashes registrados,
-- visualizar archivos añadidos y sus hashes,
-- añadir nuevas firmas maliciosas dinámicamente.
-
-MalScan ha sido diseñado con una arquitectura modular y extensible, facilitando la incorporación de nuevas técnicas de detección y permitiendo el análisis de complejidad algorítmica del sistema.
+**MalScan – Escáner Educativo de Malware por Firmas**
 
 ---
-## Funcionalidades principales
 
-- Interfaz gráfica en Tkinter.
-- Añadir archivos reales desde el ordenador.
-- Ver archivos añadidos y su hash SHA-256.
-- Escaneo rápido por hash.
-- Escaneo profundo por hash y patrones.
-- Clasificación de archivos: limpio, sospechoso o malicioso.
-- Registro automático de hashes maliciosos detectados.
-- Visualización de hashes registrados.
-- Exportación de informes en `.html`, `.txt` y `.csv`.
-- Código modular con POO, polimorfismo y recursividad.
+## 2. Descripción breve
+
+MalScan es una herramienta creada en Python que imita el funcionamiento básico de un antivirus que utiliza firmas. Este sistema permite examinar archivos utilizando hashes SHA-256 y patrones de contenido para identificar posibles riesgos. Su propósito es enseñar de manera didáctica los mecanismos esenciales de detección empleados en la ciberseguridad.
 
 ---
+
+## 3. Integrantes del grupo
+
+- Gisela Esteve
+- Emma Rosendo
+- Nuria Salas
+
+---
+
+## 4. Contexto y problemática
+
+La identificación de software malicioso es uno de los retos más significativos en la ciberseguridad actual. Los sistemas computacionales están siempre en riesgo ante peligros como el malware, el ransomware, los scripts dañinos o las herramientas de sustracción de información.
+
+Los programas antivirus actuales emplean diversas estrategias para reconocer estas amenazas, siendo la más frecuente la detección mediante firmas. Este enfoque se basa en confrontar archivos con un registro de patrones y hashes que ya han sido catalogados.
+
+---
+
+## 5. Funcionalidades principales
+
+El sistema implementa las siguientes funcionalidades:
+- Añadir archivos para su análisis.
+- Visualizar los archivos cargados.
+- Eliminar archivos del sistema.
+- Escaneo rápido mediante hashes SHA-256.
+- Escaneo profundo mediante análisis de patrones.
+- Clasificación automática de archivos:
+  - Limpio
+  - Sospechoso
+  - Malicioso
+- Gestión de firmas y hashes registrados.
+- Visualización de firmas cargadas.
+- Persistencia automática de archivos mediante JSON.
+- Exportación de informes en formato:
+  - HTML
+  - TXT
+  - CSV
+- Generación de estadísticas del análisis.
+- Compatibilidad con Windows y macOS.
+
+---
+
+## 6. Uso de POO y polimorfismo
+
+### Programación Orientada a Objetos
+
+El proyecto está desarrollado siguiendo los principios de Programación Orientada a Objetos.
+
+Las principales clases implementadas son:
+
+| Clase             | Descripción                                             |
+| ----------------- | ------------------------------------------------------- |
+| Archivo           | Representa un archivo analizado por el sistema          |
+| Carpeta           | Representa una estructura de directorios recursiva      |
+| FirmaMalware      | Define una firma de malware con severidad y descripción |
+| ResultadoEscaneo  | Almacena el resultado obtenido tras el análisis         |
+| BaseFirmas        | Gestiona hashes y patrones registrados                  |
+| MotorEscaneo      | Coordina todo el proceso de análisis                    |
+| EstrategiaEscaneo | Clase abstracta para los distintos tipos de escaneo     |
+| EscaneoRapido     | Implementa la detección mediante hashes                 |
+| EscaneoProfundo   | Implementa la detección mediante patrones               |
+
+### Polimorfismo
+
+El polimorfismo se aplica mediante el patrón Strategy.
+
+La clase abstracta:
+
+```python
+EstrategiaEscaneo
+```
+
+define la interfaz común para los distintos algoritmos de análisis.
+
+De ella heredan:
+
+```python
+EscaneoRapido
+EscaneoProfundo
+```
+
+El motor de escaneo puede trabajar con cualquiera de estas estrategias sin modificar su funcionamiento interno.
+
+---
+
+## 7. Instrucciones de ejecución y dependencias
+
+### Requisitos
+
+- Python 3.10 o superior
+
+### Dependencias utilizadas
+
+El proyecto utiliza únicamente librerías estándar de Python:
+
+```python
+tkinter
+hashlib
+json
+csv
+datetime
+os
+pathlib
+```
+
+No es necesario instalar paquetes externos mediante pip.
+
+### Ejecución
+
+1. Descargar o clonar el proyecto.
+2. Acceder a la carpeta principal.
+3. Ejecutar:
+
+```bash
+python app.py
+```
+
+o bien:
+
+```bash
+python src/app.py
+```
+
+según la estructura del proyecto.
+
+### Generación del ejecutable (opcional)
+
+Para crear un ejecutable:
+
+```bash
+pip install pyinstaller
+```
+
+```bash
+pyinstaller --onefile --windowed app.py
+```
+
+---
+
+## 8. Enlace al vídeo demostrativo
+
+**Vídeo demostrativo del proyecto:**
+
+
+
+---
+
+## 9. Uso de herramientas externas o IA
+
+Durante el desarrollo del proyecto se han usado las siguientes herramientas de apoyo:
+- Visual Studio Code como plataforma de programación.
+- GitHub para el control de versiones.
+- ChatGPT (OpenAI) como ayudante de apoyo para aclarar preguntas técnicas y revisar código.
