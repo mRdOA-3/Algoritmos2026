@@ -4,21 +4,27 @@ from motor import MotorEscaneo
 
 
 def ejecutar_demo(nombre_estrategia, estrategia):
-    print(f"\n=== {nombre_estrategia} ===")
+    print("\n" + "=" * 10, nombre_estrategia, "=" * 10)
 
     sistema = crear_sistema_simulado()
-    base = crear_base_firmas()
-    motor = MotorEscaneo(base, estrategia)
+    firmas = crear_base_firmas()
 
+    motor = MotorEscaneo(firmas, estrategia)
     resultados = motor.escanear(sistema)
 
-    for resultado in resultados:
-        print(
-            f"[{resultado.estado.upper()}] {resultado.ruta} | "
-            f"Riesgo: {resultado.riesgo} | {resultado.detalle}"
+    for r in resultados:
+        texto = (
+            f"[{r.estado.upper()}] "
+            f"{r.ruta} | "
+            f"Riesgo: {r.riesgo} | "
+            f"{r.detalle}"
         )
+        print(texto)
 
-    print("\nResumen:", motor.generar_resumen())
+    resumen = motor.generar_resumen()
+
+    print("\nResumen final")
+    print(resumen)
 
 
 if __name__ == "__main__":

@@ -6,7 +6,6 @@ from estrategias import EstrategiaEscaneo
 
 
 class MotorEscaneo:
-    """Coordina el recorrido recursivo y aplica la estrategia seleccionada."""
 
     def __init__(self, base_firmas: BaseFirmas, estrategia: EstrategiaEscaneo) -> None:
         self.base_firmas = base_firmas
@@ -19,16 +18,11 @@ class MotorEscaneo:
         return self.resultados
 
     def _escanear_nodo(self, nodo: NodoSistema, ruta_padre: str) -> None:
-        """
-        Función recursiva principal.
-        Si el nodo es archivo, se analiza.
-        Si el nodo es carpeta, se recorren sus hijos recursivamente.
-        """
         ruta_actual = nodo.obtener_ruta(ruta_padre)
 
         if isinstance(nodo, Archivo):
-            resultado = self.estrategia.escanear_archivo(nodo, ruta_actual, self.base_firmas)
-            self.resultados.append(resultado)
+            res = self.estrategia.escanear_archivo(nodo, ruta_actual, self.base_firmas)
+            self.resultados.append(res)
 
         elif isinstance(nodo, Carpeta):
             for hijo in nodo.hijos:

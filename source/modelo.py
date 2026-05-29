@@ -6,24 +6,25 @@ import hashlib
 
 @dataclass
 class NodoSistema:
-    """Clase base para cualquier elemento del sistema de archivos simulado."""
     nombre: str
 
     def obtener_ruta(self, ruta_padre: str = "") -> str:
-        if ruta_padre:
-            return f"{ruta_padre}/{self.nombre}"
-        return self.nombre
+        if ruta_padre == "":
+            return self.nombre
+        
+        return f"{ruta_padre}/{self.nombre}"
+        
+
 
 
 @dataclass
 class Archivo(NodoSistema):
-    """Representa un archivo con contenido textual simulado."""
     contenido: str
     extension: str = ".txt"
 
     def calcular_hash(self) -> str:
-        """Calcula SHA-256 del contenido del archivo."""
-        return hashlib.sha256(self.contenido.encode("utf-8")).hexdigest()
+        contenido_bytes = self.contenido.encode("utf-8")
+        return hashlib.sha256(contenido_bytes).hexdigest()
 
     def tamano(self) -> int:
         return len(self.contenido)
@@ -31,7 +32,6 @@ class Archivo(NodoSistema):
 
 @dataclass
 class Carpeta(NodoSistema):
-    """Representa una carpeta, que puede contener archivos u otras carpetas."""
     hijos: List[NodoSistema] = field(default_factory=list)
 
     def agregar_hijo(self, nodo: NodoSistema) -> None:
@@ -40,7 +40,6 @@ class Carpeta(NodoSistema):
 
 @dataclass
 class FirmaMalware:
-    """Representa una firma de malware conocida."""
     identificador: str
     patron: str
     tipo: str
@@ -50,7 +49,6 @@ class FirmaMalware:
 
 @dataclass
 class ResultadoEscaneo:
-    """Resultado generado tras analizar un archivo."""
     ruta: str
     estado: str
     riesgo: int
