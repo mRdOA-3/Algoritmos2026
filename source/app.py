@@ -4,6 +4,7 @@ import html as html_escape_lib
 from datetime import datetime
 import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
+from turtle import title
 
 from modelo import Archivo, Carpeta, FirmaMalware
 from firmas import BaseFirmas
@@ -30,18 +31,14 @@ ARCHIVOS_JSON = os.path.join(DATA_DIR, "archivos_guardados.json")
 
 
 def crear_sistema_simulado():
-    # Sistema inicialmente vacío.
-    # Los archivos se añaden desde la interfaz gráfica.
+    # El contenido se carga dedde la interfaz 
 
     return Carpeta("root")
 
 
 def crear_base_firmas():
 
-    # Crea una base de firmas inicial con patrones sospechosos y maliciosos.
-    # Las severidades se interpretan así:
-    # - 0 a 6: sospechoso
-    # - 7 a 10: malicioso
+    # Firmas utilizadas por defecto en la aplicación.
 
     base = BaseFirmas()
 
@@ -87,9 +84,8 @@ class MalScanApp:
     def obtener_o_crear_carpeta_usuario(self):
         # Devuelve la carpeta de archivos del usuario. Si no existe, la crea.
         for hijo in self.sistema.hijos:
-            if isinstance(hijo, Carpeta):
-                if hijo.nombre == "archivos_usuario":
-                    return hijo
+            if isinstance(hijo, Carpeta) and hijo.nombre == "archivos_usuario":
+                return hijo
 
         carpeta = Carpeta("archivos_usuario")
         self.sistema.agregar_hijo(carpeta)
@@ -133,12 +129,12 @@ class MalScanApp:
             "nombre": archivo.nombre,
             "contenido": archivo.contenido,
             "extension": archivo.extension
-        }
+            }
 
-        datos.append(info)
-        fichero = open(ARCHIVOS_JSON, "w", encoding="utf-8")
-        json.dump(datos, fichero)
-        fichero.close()
+            datos.append(info)
+            fichero = open(ARCHIVOS_JSON, "w", encoding="utf-8")
+            json.dump(datos, fichero)
+            fichero.close()
 
     def crear_estilos(self):
         style = ttk.Style()
@@ -221,7 +217,7 @@ class MalScanApp:
             font=("Segoe UI", 28, "bold")
         )
 
-        titulo.pack(anchor="w")
+        title.pack(anchor="w")
 
         subtitulo = tk.Label(
             izquierda,
@@ -393,12 +389,24 @@ class MalScanApp:
         self.label_explicacion.pack(anchor="w", pady=(4, 0))
 
     def actualizar_tarjetas(self):
-        archivos = self.obtener_archivos_anadidos() if hasattr(self, "sistema") else []
+        archivos = self.obtener_archivos_anadidos()
 
-        total = len(self.resultados) if self.resultados else len(archivos)
-        limpios = sum(1 for r in self.resultados if r.estado == "limpio")
-        sospechosos = sum(1 for r in self.resultados if r.estado == "sospechoso")
-        maliciosos = sum(1 for r in self.resultados if r.estado == "malicioso")
+        if self.resultados:
+            total = len(self.resultados)
+        else:
+            total = len(archivos)
+
+        limpios = 0
+        sospechosos = 0
+        maliciosos = 0
+
+        for resultado in self.resultados:
+            if resultado.estado == "limpio":
+                limpios += 1
+            elif resultado.estado == "sospechoso":
+                sospechosos += 1
+            elif resultado.estado == "malicioso":
+                maliciosos += 1
 
         self.card_total.config(text=str(total))
         self.card_limpios.config(text=str(limpios))
@@ -422,8 +430,12 @@ class MalScanApp:
 
     def ejecutar_escaneo(self, nombre, estrategia):
         archivos = self.obtener_archivos_anadidos()
-        if not archivos:
-            messagebox.showwarning("Sin archivos", "Primero añade al menos un archivo para poder escanear.")
+
+        if len(archivos) == 0:
+            messagebox.showwarning(
+                "Sin archivos",
+                "Primero añade al menos un archivo para poder escanear."
+            )
             return
 
         self.limpiar_tabla()
@@ -434,31 +446,42 @@ class MalScanApp:
         self.resultados = motor.escanear(self.sistema)
 
         for resultado in self.resultados:
-            firma = resultado.firma_detectada if resultado.firma_detectada else "-"
+            if resultado.firma_detectada:
+                firma = resultado.firma_detectada
+            else:
+                firma = "-"
 
-            if resultado.estado in ["malicioso", "sospechoso"]:
+            if resultado.estado == "malicioso" or resultado.estado == "sospechoso":
                 self.registrar_hash_detectado(resultado)
 
             self.tabla.insert(
                 "",
                 "end",
-                values=(resultado.ruta, resultado.estado.upper(), resultado.riesgo, firma, resultado.detalle),
+                values=(
+                    resultado.ruta,
+                    resultado.estado.upper(),
+                    resultado.riesgo,
+                    firma,
+                    resultado.detalle
+                ),
                 tags=(resultado.estado,)
             )
 
-        self.label_firmas.config(text=f"Firmas cargadas: {self.base_firmas.cantidad_firmas()}")
-
-        resumen = motor.generar_resumen()
-        self.label_resumen.config(
-            text=(
-                f"{nombre} completado | "
-                f"Archivos analizados: {resumen['total_archivos']} | "
-                f"Limpios: {resumen['limpios']} | "
-                f"Sospechosos: {resumen['sospechosos']} | "
-                f"Maliciosos: {resumen['maliciosos']}"
-            )
+        self.label_firmas.config(
+            text=f"Firmas cargadas: {self.base_firmas.cantidad_firmas()}"
         )
 
+        resumen = motor.generar_resumen()
+
+        texto_resumen = (
+            f"{nombre} completado | "
+            f"Archivos analizados: {resumen['total_archivos']} | "
+            f"Limpios: {resumen['limpios']} | "
+            f"Sospechosos: {resumen['sospechosos']} | "
+            f"Maliciosos: {resumen['maliciosos']}"
+        )
+
+        self.label_resumen.config(text=texto_resumen)
         self.label_estado.config(text="FINALIZADO", bg="#052e16", fg="#86efac")
         self.actualizar_tarjetas()
 
@@ -530,9 +553,6 @@ class MalScanApp:
 
 
     def eliminar_archivo(self):
-        """
-        Permite seleccionar y borrar un archivo añadido.
-        """
         archivos = self.obtener_archivos_anadidos()
 
         if not archivos:
@@ -661,7 +681,7 @@ class MalScanApp:
 
         tabla = ttk.Treeview(
             ventana,
-            columns=("categoria","id","valor","tipo","sev","desc"),
+            columns=("categoria", "id", "valor", "tipo", "sev", "desc"),
             show="headings"
         )
 
@@ -688,11 +708,11 @@ class MalScanApp:
                 values=("PATRÓN", firma.identificador, patron, firma.tipo, firma.severidad, firma.descripcion)
             )
 
-        for h, firma in self.base_firmas.firmas_por_hash.items():
+        for hash_archivo, firma in self.base_firmas.firmas_por_hash.items():
             tabla.insert(
                 "",
                 "end",
-                values=("HASH", firma.identificador, h, firma.tipo, firma.severidad, firma.descripcion)
+                values=("HASH", firma.identificador, hash_archivo, firma.tipo, firma.severidad, firma.descripcion)
             )
 
 
@@ -758,9 +778,18 @@ class MalScanApp:
             fecha = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
             total = len(self.resultados)
-            limpios = sum(1 for r in self.resultados if r.estado == "limpio")
-            sospechosos = sum(1 for r in self.resultados if r.estado == "sospechoso")
-            maliciosos = sum(1 for r in self.resultados if r.estado == "malicioso")
+            limpios = 0
+            sospechosos = 0
+            maliciosos = 0
+
+            for resultado in self.resultados:
+                if resultado.estado == "limpio":
+                    limpios += 1
+                elif resultado.estado == "sospechoso":
+                    sospechosos += 1
+                elif resultado.estado == "malicioso":
+                    maliciosos += 1
+
 
             if extension == ".csv":
                 with open(ruta_guardado, "w", encoding="utf-8") as informe:
@@ -1094,8 +1123,8 @@ class MalScanApp:
 <body>
     <div class="container">
         <div class="header">
-            <h1 class="title">MalScan Security Report</h1>
-            <div class="subtitle">Informe del análisis del malware.</div>
+            <h1 class="title">Informe de esncaneo MalSac</h1>
+            <div class="subtitle">Resultados generados a partir del escaneo de archivos.</div>
             <div class="meta">
                 <span>Fecha: {limpiar(fecha)}</span>
             </div>
